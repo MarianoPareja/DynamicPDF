@@ -1,0 +1,178 @@
+from reportlab.graphics.shapes import Circle, Line
+from reportlab.lib import colors
+from reportlab.pdfbase.pdfmetrics import stringWidth
+from reportlab.platypus import Frame, FrameBreak, Paragraph
+
+from FlowablesShapes.Circle import FlowableCircle, FlowableLine
+from Frames.CustomFrame import CustomFrame
+from utils import align_text
+
+
+class Header_001(CustomFrame):
+    def __init__(
+        self,
+        text,
+        page,
+        separator_gap,
+        line_gap,
+        *args,
+        **kwargs,
+    ):
+        """
+        This function generates a custom Heading with the following structure:
+        Word - separator_gap - word - line_gap - vector_line - page_number
+
+        :param page(tuple): (text, style) corresponding to the page number
+        :param text(list): List of tuples containing the words to be shown in order (text, style)
+        :param x(int): X Coordinate of the heading
+        :param y(int): Y Coordinate of the heading
+        :param separator_gap: Gap in pixels between words and separator shape
+        :param line_gap: Gap in pixels between vector line and heading text
+
+        """
+        super().__init__(*args, **kwargs)
+        self.text = text
+        self.page = page
+        self.separator_gap = separator_gap
+        self.line_gap = line_gap
+
+        topPadding = 0
+        rightPadding = 0
+        bottomPadding = 0
+        leftPadding = 0
+
+    def get_vector_line_length(self, actual_x):
+        """
+        Gets the lenght of the vector line
+
+        :param actual_x: X coordinate of the last word (inclusive)
+        """
+
+        return (
+            self._aW
+            - actual_x
+            - (self.line_gap * 2)
+            - stringWidth(self.page[0], self.page[1].fontName, self.page[1].fontSize)
+        )
+
+    def handle_content(self):
+
+        # To visualize the area
+        # canvas.setFillColor(colors.Color(1, 0, 1, 0.1))
+        # canvas.rect(self._x1, self._y1, self._width, self._height, fill=True)
+
+        x, y = self._x1p, self._y1p
+
+        for i, (text, style) in enumerate(self.text):
+
+            # Alignment: CenterLine
+            y = self._y1p + align_text(
+                style.fontName, style.fontSize, self._aH, alignment="CENTERLINE"
+            )
+
+            para = Paragraph(text, style)
+            w = stringWidth(text, style.fontName, style.fontSize)
+            _, h = para.wrap(availWidth=w, availHeight=self._aH)
+
+            self.addFrame(
+                Frame(
+                    x1=x,
+                    y1=y,
+                    width=w,
+                    height=h,
+                    topPadding=0,
+                    rightPadding=0,
+                    bottomPadding=0,
+                    leftPadding=0,
+                    showBoundary=1,
+                )
+            )
+            self.addFlowable(para)
+
+            x += w
+            if i < len(self.text) - 1:
+                x += self.separator_gap
+                y = self._y1p + self._aH / 2
+
+                circle = FlowableCircle(0, 0, 1, colors.Color(0.07, 0.07, 0.07, 0.5), 1)
+
+                self.addFrame(
+                    Frame(
+                        0,
+                        0,
+                        1,
+                        1,
+                        topPadding=0,
+                        rightPadding=0,
+                        bottomPadding=0,
+                        leftPadding=0,
+                        showBoundary=1,
+                    )
+                )
+                self.addFlowable(circle)
+
+                x += self.separator_gap
+
+        # line_length = self.get_vector_line_length(x - self._x1p)
+        # x += self.line_gap
+
+        # # Dine Line Values
+        # y = self._y1p + self._aH / 2
+
+        # line = FlowableLine(
+        #     x,
+        #     y,
+        #     x + line_length,
+        #     y,
+        #     colors.Color(0.07, 0.07, 0.07, 0.5),
+        #     1,
+        # )
+
+        # self.addFrame(
+        #     Frame(
+        #         x,
+        #         y,
+        #         x + line_length,
+        #         2,
+        #         topPadding=0,
+        #         rightPadding=0,
+        #         bottomPadding=0,
+        #         leftPadding=0,
+        #         showBoundary=1,
+        #     )
+        # )
+        # self.addFlowable(line)
+
+        # x += line_length + self.line_gap
+
+        # y = self._y1p + align_text(
+        #     self.page[1].fontName,
+        #     self.page[1].fontSize,
+        #     self._aH,
+        #     alignment="CENTERLINE",
+        # )
+
+        # para = Paragraph(self.page[0], self.page[1])
+        # w, h = para.wrap(
+        #     availWidth=stringWidth(
+        #         self.page[0], self.page[1].fontName, self.page[1].fontSize
+        #     ),
+        #     availHeight=self._aH,
+        # )
+
+        # self.addFrame(
+        #     Frame(
+        #         x,
+        #         y,
+        #         w,
+        #         h,
+        #         topPadding=0,
+        #         rightPadding=0,
+        #         bottomPadding=0,
+        #         leftPadding=0,
+        #         showBoundary=1,
+        #     )
+        # )
+        # self.addFlowable(para)
+
+        return (self._frames, self._framesContent)
