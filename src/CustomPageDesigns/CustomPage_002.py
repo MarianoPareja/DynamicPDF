@@ -32,7 +32,7 @@ style_2 = ParagraphStyle(
     fontName="NeueMontreal-Light",
     fontSize=10,
     leading=12,
-    textColor=colors.Color(0.07, 0.07, 0.07, 1),
+    textColor=colors.Color(1, 1, 1, 1),
 )
 
 style_3 = ParagraphStyle(
@@ -40,6 +40,7 @@ style_3 = ParagraphStyle(
     fontName="NeueMontreal-Regular",
     fontSize=15,
     leading=18,
+    textColor=colors.Color(1, 1, 1, 1),
 )
 
 style_4 = ParagraphStyle(
@@ -55,6 +56,7 @@ style_5 = ParagraphStyle(
     fontSize=40,
     leading=40,
     textColor=colors.Color(1, 1, 1, 1),
+    splitLongWords=0,
 )
 
 style_6 = ParagraphStyle(
@@ -108,15 +110,23 @@ style_11 = ParagraphStyle(
     textColor=colors.Color(1, 1, 1, 1),
 )
 
+style_12 = ParagraphStyle(
+    name="style-11",
+    fontName="NeueMontreal-Regular",
+    fontSize=8,
+    leading=9.6,
+    textColor=colors.Color(1, 1, 1, 1),
+)
+
 
 # GENERATE INPUT DATA
 # ------------------------------------------------
 
-header_texts = ["Preliminary", "Dismorphism", "Theory"]
+header_texts = ["Preliminary", "Dismorphism", "Assessment"]
 header_styles = [style_1, style_1, style_2]
 header_data = [(text, style) for text, style in zip(header_texts, header_styles)]
 
-page_number_data = ("02", style_3)
+page_number_data = ("01", style_3)
 
 tag_data = ("SEXUAL DISMORPHISM", style_4)
 
@@ -129,6 +139,9 @@ content_text = """Our main goal with Facial
 Proportions is to take an overall look at your facial configuration and dimensions. Later in chapter 2 we look into individual proportions, feature-by-feature."""
 content_text = content_text.replace("\n", "<br/>")
 content_data = (content_text, style_8)
+
+tabledesc_text = "Summary of tests"
+tabledesc_data = (tabledesc_text, style_12)
 
 image_text = """FIG 2 : Ratios greater than 1.10 <br/> (i.e. there is a 110% difference between you and the most extreme comparisons) are shown here as they are dimorphic traits."""
 image_data = (image_text, style_9)
@@ -153,9 +166,10 @@ table_data = [
 header = Header_001(
     text=header_data,
     page=page_number_data,
-    separator=".",
     separator_gap=8,
+    separator_color=colors.Color(1, 1, 1, 0.5),
     line_gap=16,
+    line_color=colors.Color(1, 1, 1, 0.1),
     x1=26,
     y1=get_bottom_location(16, 30),
     width=543,
@@ -168,7 +182,7 @@ header = Header_001(
 
 tag = Tag_001(
     text=tag_data,
-    background=colors.Color(0.68, 0.76, 0.79, 1),
+    bg=colors.Color(0.68, 0.76, 0.79, 1),
     x1=26,
     y1=get_bottom_location(86, 13),
     width=91,
@@ -219,6 +233,20 @@ content = Content_001(
     leftPadding=0,
 )
 
+table_desc = Content_001(
+    text=tabledesc_data,
+    num_cols=1,
+    gap=0,
+    x1=26,
+    y1=get_bottom_location(698, 10),
+    width=62,
+    height=10,
+    topPadding=0,
+    rightPadding=0,
+    bottomPadding=0,
+    leftPadding=0,
+)
+
 table = Table_001(
     table_data=table_data,
     colsContentWidth=167,
@@ -237,16 +265,15 @@ table = Table_001(
 
 # CREATE PAGE
 # ------------------------------------------------
-page_002 = PageTemplate(id="Page_Template_001", pagesize=(PAGE_WIDTH, PAGE_HEIGHT))
-
-# Add all the frames
-page_002.frames.append(header)
-page_002.frames.append(tag)
-page_002.frames.append(heading_1)
-page_002.frames.append(heading_2)
-page_002.frames.append(content)
-page_002.frames.append(table)
-
+page_002_content = [
+    header,
+    tag,
+    heading_1,
+    heading_2,
+    content,
+    table_desc,
+    table,
+]
 
 if __name__ == "__main__":
     pass

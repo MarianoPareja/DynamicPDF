@@ -1,8 +1,10 @@
 from reportlab.lib import colors
 from reportlab.platypus import Frame, Paragraph, Table, TableStyle
 
+from Frames.CustomFrame import CustomFrame
 
-class Table_001(Frame):
+
+class Table_001(CustomFrame):
     def __init__(
         self, table_data, colsContentWidth, headerFormat, contentFormat, *args, **kwargs
     ):
@@ -14,6 +16,8 @@ class Table_001(Frame):
         self.headerUpper = True
 
         self.colsWidth = self._aW / len(self.table_data[0])
+
+        self._autoBreak = False
 
     def generate_paragraph_data(self):
         """
@@ -50,7 +54,7 @@ class Table_001(Frame):
                 "LINEBELOW", (0, row), (-1, row), 1, colors.Color(1, 1, 1, 0.1)
             )
 
-    def handle_data(self, canvas):
+    def handle_content(self):
 
         # # Visualize area
         # canvas.setFillColor(colors.Color(1, 0.1, 0.1, 0.3))
@@ -76,9 +80,26 @@ class Table_001(Frame):
         #     ('FONTSIZE', (0,0), (0,-1), self.header_format.get('fontsize')),
         # ])
 
-        t = Table(table_data, colWidths=self.colsWidth)
-        t.setStyle(table_style)
+        table = Table(table_data, colWidths=self.colsWidth)
+        table.setStyle(table_style)
 
-        w, h = t.wrap(availWidth=self._aW, availHeight=self._aH)
-        print(self._aH, h)
-        t.drawOn(canvas, self._x1, self._y1)
+        w, h = table.wrap(availWidth=self._aW, availHeight=self._aH)
+        # table.drawOn(canvas, self._x1, self._y1)
+
+        self.addFrame(
+            Frame(
+                x1=self._x1p,
+                y1=self._y1p,
+                width=self._aW,
+                height=self._aH,
+                topPadding=0,
+                rightPadding=0,
+                bottomPadding=0,
+                leftPadding=0,
+                showBoundary=0,
+                id=f"table",
+            )
+        )
+        self.addFlowable(table)
+
+        return (self._frames, self._framesContent)

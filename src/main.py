@@ -1,49 +1,41 @@
-from reportlab.lib.colors import Color
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.platypus import (
     BaseDocTemplate,
-    Frame,
     FrameBreak,
+    NextPageTemplate,
     PageTemplate,
-    Paragraph,
 )
 
-from CustomPageDesigns.CustomPage_001 import header
-from utils import get_bottom_location
-
-header_frames, header_flowables = header.handle_content()
+from CustomPageDesigns.CustomPage_001 import page_001_content
+from CustomPageDesigns.CustomPage_002 import page_002_content
+from utils import generate_content, setBackgroundColor
 
 PAGE_WIDTH, PAGE_HEIGHT = (595, 842)
 page_size = (PAGE_WIDTH, PAGE_HEIGHT)
 
-frame_1 = Frame(
-    x1=26, y1=get_bottom_location(16, 30), width=543, height=30, showBoundary=1
+page_001_frames, page_001_stories = [], []
+generate_content(page_001_content, page_001_frames, page_001_stories)
+
+page_002_frames, page_002_stories = [], []
+generate_content(page_002_content, page_002_frames, page_002_stories)
+
+page_1 = PageTemplate(id="Page_1", frames=page_001_frames, pagesize=page_size)
+page_2 = PageTemplate(
+    id="Page_2", frames=page_002_frames, pagesize=page_size, onPage=setBackgroundColor
 )
 
-frame_2 = Frame(
-    x1=26, y1=get_bottom_location(86, 13), width=91, height=13, showBoundary=1
+stories = []
+stories.extend(page_001_stories)
+stories.append(NextPageTemplate("Page_2"))
+stories.extend(page_002_stories)
+
+doc = BaseDocTemplate(
+    filename="Document.pdf",
+    leftMargin=0,
+    rightMargin=0,
+    topMargin=0,
+    bottomMargin=0,
 )
-
-frame_3 = Frame(
-    x1=26, y1=get_bottom_location(109, 40), width=174, height=40, showBoundary=1
-)
-
-frame_4 = Frame(
-    x1=210, y1=get_bottom_location(109, 12), width=174, height=12, showBoundary=1
-)
-
-frame_5 = Frame(
-    x1=210, y1=get_bottom_location(131, 338), width=359, height=338, showBoundary=1
-)
-
-frame_6 = Frame(
-    x1=26, y1=get_bottom_location(630, 171), width=543, height=171, showBoundary=1
-)
-
-page_1 = PageTemplate(frames=[frame_1, frame_2, frame_3, frame_4, frame_5, frame_6])
-
-stories = [FrameBreak] * 6
-
-doc = BaseDocTemplate("Document.pdf")
 doc.addPageTemplates(page_1)
+doc.addPageTemplates(page_2)
+
 doc.build(stories)

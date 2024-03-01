@@ -1,9 +1,10 @@
-from reportlab.lib import colors
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import Frame, Paragraph
 
+from Frames.CustomFrame import CustomFrame
 
-class Content_001(Frame):
+
+class Content_001(CustomFrame):
     def __init__(
         self,
         text,
@@ -50,25 +51,39 @@ class Content_001(Frame):
 
         return text_paragraph
 
-    def handle_content(self, canvas):
+    def handle_content(self):
 
         # Visualize area
         # canvas.setFillColor(colors.Color(0.1, 0.6, 0.1, 0.3))
         # canvas.rect(self._x1, self._y1, self._width, self._height, fill=True)
 
-        xP = self._x1 + self.leftPadding
-        yP = self._y1 + self.bottomPadding
-
-        x, y = xP, yP
+        x, y = self._x1p, self._y1p
 
         para_text = self.distribute_words()
 
-        para_width = (self._width / self.num_cols) - (self.gap * (self.num_cols - 1))
+        para_width = (self._aW - (self.gap * (self.num_cols - 1))) / self.num_cols
 
         for text in para_text:
             para = Paragraph(text, self.text[1])
-            _, h = para.wrap(availWidth=para_width, availHeight=self._height)
+            _, h = para.wrap(availWidth=para_width, availHeight=self._aH)
 
-            para.drawOn(canvas, x, y + (self._aH - h))
+            # para.drawOn(canvas, x, y + (self._aH - h))
+            self.addFrame(
+                Frame(
+                    x1=x,
+                    y1=y + (self._aH - h),
+                    width=para_width,
+                    height=h,
+                    topPadding=0,
+                    rightPadding=0,
+                    bottomPadding=0,
+                    leftPadding=0,
+                    showBoundary=0,
+                    id=f"content",
+                )
+            )
+            self.addFlowable(para)
 
             x += para_width + self.gap
+
+        return (self._frames, self._framesContent[:-1])

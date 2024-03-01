@@ -7,35 +7,21 @@ from utils import align_text
 
 
 class Tag_001(CustomFrame):
-    def __init__(self, text, background, *args, **kwargs):
+    def __init__(self, text, bg, *args, **kwargs):
         """
         :param text(tuple): Tuple containing (text, ParagraphStyle)
         :param background(reportlab.lib.colors.Color): RGBA values corresponding to the background color
         """
 
-        if not isinstance(background, colors.Color):
-            raise ValueError(
-                "Expected %s type for background, got %s",
-                type(colors.Color),
-                type(background),
-            )
-
-        super().__init__(*args, **kwargs)
+        super().__init__(bg, *args, **kwargs)
         self.text = text
-        self.background = background
 
-    def handle_content(self, canvas):
+    def handle_content(self):
 
-        canvas.setFillColor(self.background)
-        canvas.setLineWidth(0)
-        canvas.rect(self._x1, self._y1, self._width, self._height, fill=True)
+        x = self._x1p
+        y = self._y1p
 
-        xP = self._x1 + self._leftPadding
-        yP = self._y1 + self._bottomPadding
-
-        x, y = xP, yP
-
-        y = yP + align_text(
+        y = self._y1p + align_text(
             self.text[1].fontName,
             self.text[1].fontSize,
             self._aH,
@@ -49,39 +35,21 @@ class Tag_001(CustomFrame):
             ),
             availHeight=self._aH,
         )
-        para.drawOn(canvas, x, y)
+        # para.drawOn(canvas, x, y)
+        self.addFrame(
+            Frame(
+                x1=x,
+                y1=y,
+                width=w,
+                height=h,
+                topPadding=0,
+                rightPadding=0,
+                bottomPadding=0,
+                leftPadding=0,
+                showBoundary=0,
+                id="tag",
+            )
+        )
+        self.addFlowable(para)
 
-
-###
-# text = "SEXUAL DISMORPHISM"
-
-# if __name__ == "__main__":
-#     c = canvas.Canvas("tesing_heading.pdf", pagesize=letter)
-
-#     width = 40 * mm
-#     height = 8 * mm
-
-#     style = ParagraphStyle(
-#         name="Style",
-#         fontName="Helvetica",
-#         fontSize=8,
-#         leading=12,
-#     )
-
-#     data = (text, style)
-
-#     frame = Tag_001(
-#         text=data,
-#         background=colors.Color(0.3, 0.3, 0.9, 0.4),
-#         x1=100 * mm,
-#         y1=100 * mm,
-#         width=width,
-#         height=height,
-#         leftPadding=0,
-#         bottomPadding=0,
-#         rightPadding=0,
-#         topPadding=0,
-#     )
-
-#     frame.handle_content(c)
-#     c.save()
+        return (self._frames, self._framesContent[:-1])

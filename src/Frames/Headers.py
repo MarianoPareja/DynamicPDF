@@ -1,4 +1,3 @@
-from reportlab.graphics.shapes import Circle, Line
 from reportlab.lib import colors
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import Frame, FrameBreak, Paragraph
@@ -14,7 +13,9 @@ class Header_001(CustomFrame):
         text,
         page,
         separator_gap,
+        separator_color,
         line_gap,
+        line_color,
         *args,
         **kwargs,
     ):
@@ -34,12 +35,9 @@ class Header_001(CustomFrame):
         self.text = text
         self.page = page
         self.separator_gap = separator_gap
+        self.separator_color = separator_color
         self.line_gap = line_gap
-
-        topPadding = 0
-        rightPadding = 0
-        bottomPadding = 0
-        leftPadding = 0
+        self.line_color = line_color
 
     def get_vector_line_length(self, actual_x):
         """
@@ -84,7 +82,8 @@ class Header_001(CustomFrame):
                     rightPadding=0,
                     bottomPadding=0,
                     leftPadding=0,
-                    showBoundary=1,
+                    showBoundary=0,
+                    id=f"header_para_{i}",
                 )
             )
             self.addFlowable(para)
@@ -94,85 +93,94 @@ class Header_001(CustomFrame):
                 x += self.separator_gap
                 y = self._y1p + self._aH / 2
 
-                circle = FlowableCircle(0, 0, 1, colors.Color(0.07, 0.07, 0.07, 0.5), 1)
+                circle = FlowableCircle(
+                    x=self.separator_gap,
+                    y=-self._aH / 2 + 2,
+                    r=1,
+                    strokeColor=self.separator_color,
+                    strokeWidth=0,
+                )
 
                 self.addFrame(
                     Frame(
-                        0,
-                        0,
-                        1,
-                        1,
+                        x1=x - self.separator_gap,
+                        y1=y - self._aH / 2,
+                        width=2 * self.separator_gap,
+                        height=self._aH,
                         topPadding=0,
                         rightPadding=0,
                         bottomPadding=0,
                         leftPadding=0,
-                        showBoundary=1,
+                        showBoundary=0,
+                        id=f"header_figure_{i}",
                     )
                 )
                 self.addFlowable(circle)
 
                 x += self.separator_gap
 
-        # line_length = self.get_vector_line_length(x - self._x1p)
-        # x += self.line_gap
+        line_length = self.get_vector_line_length(x - self._x1p)
+        x += self.line_gap
 
-        # # Dine Line Values
-        # y = self._y1p + self._aH / 2
+        # Dine Line Values
+        y = self._y1p + self._aH / 2
 
-        # line = FlowableLine(
-        #     x,
-        #     y,
-        #     x + line_length,
-        #     y,
-        #     colors.Color(0.07, 0.07, 0.07, 0.5),
-        #     1,
-        # )
+        line = FlowableLine(
+            x1=0,
+            y1=-self._aH / 2,
+            x2=line_length,
+            y2=-self._aH / 2,
+            strokeColor=self.line_color,
+            lineWidth=1,
+        )
 
-        # self.addFrame(
-        #     Frame(
-        #         x,
-        #         y,
-        #         x + line_length,
-        #         2,
-        #         topPadding=0,
-        #         rightPadding=0,
-        #         bottomPadding=0,
-        #         leftPadding=0,
-        #         showBoundary=1,
-        #     )
-        # )
-        # self.addFlowable(line)
+        self.addFrame(
+            Frame(
+                x1=x,
+                y1=y - self._aH / 2,
+                width=line_length,
+                height=self._aH,
+                topPadding=0,
+                rightPadding=0,
+                bottomPadding=0,
+                leftPadding=0,
+                showBoundary=0,
+                id="header-line",
+            )
+        )
+        self.addFlowable(line)
 
-        # x += line_length + self.line_gap
+        x += line_length + self.line_gap
 
-        # y = self._y1p + align_text(
-        #     self.page[1].fontName,
-        #     self.page[1].fontSize,
-        #     self._aH,
-        #     alignment="CENTERLINE",
-        # )
+        y = self._y1p + align_text(
+            self.page[1].fontName,
+            self.page[1].fontSize,
+            self._aH,
+            alignment="CENTERLINE",
+        )
 
-        # para = Paragraph(self.page[0], self.page[1])
-        # w, h = para.wrap(
-        #     availWidth=stringWidth(
-        #         self.page[0], self.page[1].fontName, self.page[1].fontSize
-        #     ),
-        #     availHeight=self._aH,
-        # )
+        para = Paragraph(self.page[0], self.page[1])
+        w, h = para.wrap(
+            availWidth=stringWidth(
+                self.page[0], self.page[1].fontName, self.page[1].fontSize
+            ),
+            availHeight=self._aH,
+        )
 
-        # self.addFrame(
-        #     Frame(
-        #         x,
-        #         y,
-        #         w,
-        #         h,
-        #         topPadding=0,
-        #         rightPadding=0,
-        #         bottomPadding=0,
-        #         leftPadding=0,
-        #         showBoundary=1,
-        #     )
-        # )
-        # self.addFlowable(para)
+        self.addFrame(
+            Frame(
+                x,
+                y,
+                w,
+                height=h,
+                topPadding=0,
+                rightPadding=0,
+                bottomPadding=0,
+                leftPadding=0,
+                showBoundary=0,
+                id="header_pagenumber",
+            )
+        )
+        self.addFlowable(para)
 
-        return (self._frames, self._framesContent)
+        return (self._frames, self._framesContent[:-1])

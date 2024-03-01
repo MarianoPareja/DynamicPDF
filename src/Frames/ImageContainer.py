@@ -1,9 +1,11 @@
 from reportlab.lib import colors
 from reportlab.pdfbase.pdfmetrics import stringWidth
-from reportlab.platypus import Frame, Paragraph
+from reportlab.platypus import Frame, Image, Paragraph
+
+from Frames.CustomFrame import CustomFrame
 
 
-class ImageContainer_001(Frame):
+class ImageContainer_001(CustomFrame):
     def __init__(self, text, images_file, gap, *args, **kwargs):
         """
         :param text(tuple): Tuple containing (text, ParagraphStyle)
@@ -19,22 +21,36 @@ class ImageContainer_001(Frame):
             len(self.images_file) + 1
         )
 
-    def handle_content(self, canvas):
+    def handle_content(self):
         """ """
         # Visualize container area
         # canvas.setFillColor(colors.Color(0.4, 0.4, 0.4, 0.1))
         # canvas.rect(self._x1, self._y1, self._width, self._height, fill=True)
 
-        xP = self._x1 + self.leftPadding
-        yP = self._y1 + self.bottomPadding
-
-        x, y = xP, yP
+        x, y = self._x1p, self._y1p
 
         para = Paragraph(self.text[0], self.text[1])
         w, h = para.wrap(availWidth=self.content_width, availHeight=self._aH)
-        para.drawOn(canvas, x, y)
 
-        # cur_y = self.height - f.fontSize
+        self.addFrame(
+            Frame(
+                x1=x,
+                y1=y,
+                width=w,
+                height=h,
+                topPadding=0,
+                rightPadding=0,
+                bottomPadding=0,
+                leftPadding=0,
+                showBoundary=0,
+                id="image_footer",
+            )
+        )
+        self.addFlowable(para)
+
+        # para.drawOn(canvas, x, y)
+
+        # cur_y = self.height - self.fontSize
 
         x += self.content_width
 
@@ -42,17 +58,42 @@ class ImageContainer_001(Frame):
             x += self.gap
             aux = round(self._x2 - x, 5)
             if round(self.content_width, 5) <= aux:
-                _, _ = canvas.drawImage(
-                    img_file,
-                    x,
-                    y,
-                    self.content_width,
-                    self._aH,
+                # _, _ = canvas.drawImage(
+                #     img_file,
+                #     x,
+                #     y,
+                #     self.content_width,
+                #     self._aH,
+                #     mask="auto",
+                #     anchor="c",
+                # )
+                image = Image(
+                    filename=img_file,
+                    width=self.content_width,
+                    height=self._aH,
                     mask="auto",
-                    anchor="c",
                 )
+
+                self.addFrame(
+                    Frame(
+                        x1=x,
+                        y1=y,
+                        width=self.content_width,
+                        height=self._aH,
+                        topPadding=0,
+                        rightPadding=0,
+                        bottomPadding=0,
+                        leftPadding=0,
+                        showBoundary=0,
+                        id="image_footer",
+                    )
+                )
+                self.addFlowable(image)
+
                 x += self.content_width
 
             else:
                 print("No enough spaces to insert all images")
                 break
+
+        return (self._frames, self._framesContent[:-1])

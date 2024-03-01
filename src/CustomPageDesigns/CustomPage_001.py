@@ -1,3 +1,5 @@
+import os
+
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.styles import ParagraphStyle
@@ -11,9 +13,11 @@ from Frames.Headers import Header_001
 from Frames.Headings import Heading_001, Heading_002
 from Frames.ImageContainer import ImageContainer_001
 from Frames.Tags import Tag_001
-from utils import get_bottom_location, load_fonts
+from utils import generate_content, get_bottom_location, load_fonts
 
 load_fonts()
+
+IMAGES_PATH = os.path.join(os.path.dirname(os.path.abspath("./")), "Images/")
 
 PAGE_WIDTH, PAGE_HEIGHT = (595, 842)
 
@@ -71,7 +75,7 @@ style_7 = ParagraphStyle(
     fontFamily="F37ZagmaMonoTrial-Light",
     fontSize=8,
     leading=9.6,
-    textColor=colors.Color(0.07, 0.07, 0.07, 1),
+    textColor=colors.Color(0.07, 0.07, 0.07, 0.5),
 )
 
 style_8 = ParagraphStyle(
@@ -81,7 +85,7 @@ style_8 = ParagraphStyle(
     leading=13,
     alignment=TA_JUSTIFY,
     textColor=colors.Color(0.07, 0.07, 0.07, 1),
-    splitLongWords=True,
+    splitLongWords=False,
 )
 
 style_9 = ParagraphStyle(
@@ -96,9 +100,9 @@ style_9 = ParagraphStyle(
 # ------------------------------------------------
 
 header_texts = [
-    "Dismorphism",
     "Preliminary",
-    "Theory",
+    "Dismorphism",
+    "Assessment",
 ]
 header_styles = [style_1, style_1, style_2]
 header_data = [(text, style) for text, style in zip(header_texts, header_styles)]
@@ -122,7 +126,7 @@ However, modern science shows us these proportions of beauty are misguided. They
 
 Instead, in contemporary science, plastic surgeons and orthodontists use ‘Modern Anthropometry,’ where instead of relying on arbitrary proportions and one-size-fits-all shapes, we use demographic data of populations to establish the actual proportions that contribute to attractiveness for that group.
 
-For example, the features that makes a <strong>White Male</strong> of <strong>30 years</strong> age attractive, may not necessarily be the same proportions that make a Black Woman of 20 years age attractive, which is why Modern Anthropometry is needed. Clincians must compare apples to apples to be precise."""
+For example, the features that makes a <b>White Male</b> of <u>30 years</u> age attractive, may not necessarily be the same proportions that make a <u>Black Woman</u> of <u>20 years age</u> attractive, which is why Modern Anthropometry is needed. Clincians must compare apples to apples to be precise."""
 content_text = content_text.replace("\n", "<br/>")
 content_data = (content_text, style_8)
 
@@ -136,7 +140,9 @@ header = Header_001(
     text=header_data,
     page=page_number_data,
     separator_gap=8,
+    separator_color=colors.Color(18 / 255, 18 / 255, 18 / 255, 0.2),
     line_gap=16,
+    line_color=colors.Color(18 / 255, 18 / 255, 18 / 255, 0.1),
     x1=26,
     y1=get_bottom_location(16, 30),
     width=543,
@@ -149,7 +155,7 @@ header = Header_001(
 
 tag = Tag_001(
     text=tag_data,
-    background=colors.Color(0.93, 0.93, 0.93, 1),
+    bg=colors.Color(0.93, 0.93, 0.93, 1),
     x1=26,
     y1=get_bottom_location(86, 13),
     width=91,
@@ -203,8 +209,8 @@ content = Content_001(
 image = ImageContainer_001(
     text=image_data,
     images_file=[
-        "./Images/6e17f9cce757f63a4d822adc336ea5f6.jpeg",
-        "./Images/6e17f9cce757f63a4d822adc336ea5f6.jpeg",
+        os.path.join(IMAGES_PATH, "6e17f9cce757f63a4d822adc336ea5f6.jpeg"),
+        os.path.join(IMAGES_PATH, "6e17f9cce757f63a4d822adc336ea5f6.jpeg"),
     ],
     gap=10,
     x1=26,
@@ -217,7 +223,7 @@ image = ImageContainer_001(
     leftPadding=0,
 )
 
-headerGrid = HeaderGrid(
+header_grid = HeaderGrid(
     color=colors.Color(255, 0, 0, 0.5),
     lineWidth=0.5,
     x1=16,
@@ -230,7 +236,7 @@ headerGrid = HeaderGrid(
     leftPadding=0,
 )
 
-contentGrid = ContentGrid(
+content_grid = ContentGrid(
     color=colors.Color(255, 0, 0, 0.5),
     lineWidth=0.5,
     gapWidth=10,
@@ -248,17 +254,16 @@ contentGrid = ContentGrid(
 
 # CREATE PAGE
 # ------------------------------------------------
-page_001 = PageTemplate(id="Page_Template_001", pagesize=(PAGE_WIDTH, PAGE_HEIGHT))
-
-# Add all the frames
-page_001.frames.append(header)
-page_001.frames.append(tag)
-page_001.frames.append(heading_1)
-page_001.frames.append(heading_2)
-page_001.frames.append(content)
-page_001.frames.append(image)
-page_001.frames.append(headerGrid)
-page_001.frames.append(contentGrid)
+page_001_content = [
+    header,
+    tag,
+    heading_1,
+    heading_2,
+    content,
+    header_grid,
+    content_grid,
+    image,
+]
 
 
 if __name__ == "__main__":
