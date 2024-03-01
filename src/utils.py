@@ -6,8 +6,7 @@ from reportlab.pdfbase.pdfmetrics import getAscentDescent, registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import FrameBreak
 
-FONTS_PATH = os.path.join(os.path.dirname(os.path.abspath("./")), "Fonts/")
-# FONTS_PATH = os.path.join(os.path.abspath("./"), "Fonts/")
+FONTS_PATH = os.path.join(os.path.abspath("./"), "Fonts/")
 
 
 def load_fonts(fonts_dir=FONTS_PATH):

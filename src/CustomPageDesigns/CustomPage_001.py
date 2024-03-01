@@ -17,7 +17,7 @@ from utils import generate_content, get_bottom_location, load_fonts
 
 load_fonts()
 
-IMAGES_PATH = os.path.join(os.path.dirname(os.path.abspath("./")), "Images/")
+IMAGES_PATH = os.path.join(os.path.abspath("./"), "Images/")
 
 PAGE_WIDTH, PAGE_HEIGHT = (595, 842)
 
